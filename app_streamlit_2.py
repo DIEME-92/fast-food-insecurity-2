@@ -12,8 +12,8 @@ st.set_page_config(page_title="Dashboard Insécurité Alimentaire", layout="wide
 # ============================================================
 # 🔹 Chargement des modèles
 # ============================================================
-rf_model = joblib.load("modele_food_insecurity.pkl")
-xgb_model = joblib.load("modele_food_insecurity_1.pkl")
+joblib.load("modele_food_insecurity.pkl")
+joblib.load("modele_food_insecurity_1.pkl")
 
 # ============================================================
 # 🔹 Chargement des données test
