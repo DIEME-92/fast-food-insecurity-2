@@ -124,19 +124,16 @@ import numpy as np
 
 st.subheader("📌 Matrice de confusion")
 
+# 🔹 Générer les prédictions (OBLIGATOIRE)
+rf_preds = rf_model.predict(X_test_selected)
+xgb_preds = xgb_model.predict(X_test_selected)
+
 # 🔹 Sélecteur du modèle
 modele_cm = st.selectbox(
     "Choisissez le modèle pour afficher la matrice de confusion :",
     ["Random Forest", "XGBoost"],
     key="cm_selector"
 )
-
-# 🔹 Charger les vraies prédictions (⚠️ remplace par tes vraies variables)
-# Exemple : si tu as déjà rf_preds et xgb_preds dans ton code
-# Sinon, décommente les lignes suivantes :
-
-# rf_preds = rf_model.predict(X_test_selected)
-# xgb_preds = xgb_model.predict(X_test_selected)
 
 # 🔹 Choix du modèle
 if modele_cm == "Random Forest":
@@ -166,6 +163,7 @@ ax.set_ylabel("Valeurs réelles")
 ax.set_title(f"Matrice de confusion - {modele_cm}")
 
 st.pyplot(fig)
+
 
 
 
