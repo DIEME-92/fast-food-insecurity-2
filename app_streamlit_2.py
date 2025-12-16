@@ -11,7 +11,7 @@ import joblib
 # ✅ Charger les modèles sauvegardés
 @st.cache_resource
 def load_models():
-    rf_model = joblib.load("modele_food_insecurity2.pkl")   # ou pickle.load(open(...))
+    rf_model = joblib.load("modele_food_insecurity_2.pkl")   # ou pickle.load(open(...))
     xgb_model = joblib.load("modele_food_insecurity_1.pkl")
     return rf_model, xgb_model
 
