@@ -3,21 +3,9 @@ import requests
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-
-###########################################################"""chargement des modeles################################################################"
 import pickle
 import joblib
 
-# ✅ Charger les modèles sauvegardés
-@st.cache_resource
-def load_models():
-    rf_model = joblib.load("modele_food_insecurity_2.pkl")   # ou pickle.load(open(...))
-    xgb_model = joblib.load("modele_food_insecurity_1.pkl")
-    return rf_model, xgb_model
-
-rf_model, xgb_model = load_models()
-
-###################################################################################"chargement des donnees##########################################"
 # ✅ Chargement des données
 @st.cache(persist=True)
 def load_data():
@@ -42,6 +30,25 @@ variables = [
     "q603_sauter_un_repas",
     "q601_ne_pas_manger_nourriture_saine_nutritive"
 ]
+
+
+###########################################################"""chargement des modeles################################################################"
+
+
+# ✅ Charger les modèles sauvegardés
+@st.cache_resource
+def load_models():
+    rf_model = joblib.load("modele_food_insecurity_2.pkl")   # ou pickle.load(open(...))
+    xgb_model = joblib.load("modele_food_insecurity_1.pkl")
+    return rf_model, xgb_model
+
+rf_model, xgb_model = load_models()
+
+###################################################################################"chargement des donnees##########################################"
+
+
+
+
 ############################################################################################################################################"""
 # 🔹 Matrice de corrélation
 st.subheader("📈 Matrice de corrélation des variables")
