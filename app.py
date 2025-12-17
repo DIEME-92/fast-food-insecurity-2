@@ -1,8 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
-from dotenv import load_dotenv
-import os
 import joblib
 import pandas as pd
 
@@ -10,17 +8,12 @@ from database import SessionLocal, engine
 from models import Base, PredictionLog
 
 # ✅ Initialisation
-load_dotenv()
 app = FastAPI()
 Base.metadata.create_all(bind=engine)
 
-# ✅ Chargement du modèle avec vérification
-model_path = os.getenv("MODEL_PATH")
-
-if not model_path or not os.path.exists(model_path):
-    raise FileNotFoundError(f"❌ Le fichier modèle spécifié dans MODEL_PATH est introuvable : {model_path}")
-
-model = joblib.load(model_path)
+# ✅ Charger les deux modèles
+rf_model = joblib.load("modele_food_insecurity_2.pkl")
+xgb_model = joblib.load("modele_food_insecurity_1.pkl")
 
 # ✅ Variables utilisées
 selected_features = [
@@ -36,6 +29,7 @@ class InputData(BaseModel):
     q604_manger_moins_que_ce_que_vous_auriez_du: int
     q603_sauter_un_repas: int
     q601_ne_pas_manger_nourriture_saine_nutritive: int
+    modele: str = "Random Forest"   # choix du modèle
 
 # ✅ Endpoint de santé
 @app.get("/health")
@@ -49,15 +43,19 @@ def predict(data: InputData):
         input_df = pd.DataFrame([data.dict()])
         input_filtered = input_df[selected_features]
 
+        # Choix du modèle
+        if data.modele == "XGBoost":
+            proba = xgb_model.predict_proba(input_filtered)[0]
+        else:
+            proba = rf_model.predict_proba(input_filtered)[0]
+
+        seuil_severe = 0.4
+        prediction_binaire = int(proba[1] > seuil_severe)
+
         if input_filtered.sum().sum() == 0:
             niveau = "aucune"
-            prediction_binaire = 0
             profil = "neutre"
-            proba = [1.0, 0.0]
         else:
-            proba = model.predict_proba(input_filtered)[0]
-            seuil_severe = 0.4
-            prediction_binaire = int(proba[1] > seuil_severe)
             niveau = "sévère" if prediction_binaire == 1 else "modérée"
             profil = "critique" if prediction_binaire == 1 else "intermédiaire"
 
@@ -77,7 +75,7 @@ def predict(data: InputData):
                 "classe_0": round(float(proba[0]), 4),
                 "classe_1": round(float(proba[1]), 4)
             }
-        }, media_type="application/json; charset=utf-8")
+        })
 
     except Exception as e:
         return JSONResponse(content={
